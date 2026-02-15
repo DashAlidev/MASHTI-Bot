@@ -4,6 +4,9 @@
   "description": "MASHTI Discord Bot - XP System, Jarimeh System, Approve System",
   "main": "src/index.js",
   "type": "module",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node src/index.js"
   },
