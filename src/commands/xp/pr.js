@@ -1,4 +1,10 @@
-import { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle
+} from "discord.js";
 import { robTypes } from "../../utils/robConfig.js";
 
 export const data = new SlashCommandBuilder()
@@ -26,24 +32,16 @@ export const data = new SlashCommandBuilder()
       )
   )
   .addUserOption(option =>
-    option.setName("player1")
-      .setDescription("پلیر اول")
-      .setRequired(true)
+    option.setName("player1").setDescription("پلیر اول").setRequired(true)
   )
   .addUserOption(option =>
-    option.setName("player2")
-      .setDescription("پلیر دوم")
-      .setRequired(false)
+    option.setName("player2").setDescription("پلیر دوم")
   )
   .addUserOption(option =>
-    option.setName("player3")
-      .setDescription("پلیر سوم")
-      .setRequired(false)
+    option.setName("player3").setDescription("پلیر سوم")
   )
   .addUserOption(option =>
-    option.setName("player4")
-      .setDescription("پلیر چهارم")
-      .setRequired(false)
+    option.setName("player4").setDescription("پلیر چهارم")
   );
 
 export async function execute(interaction, client) {
@@ -61,45 +59,34 @@ export async function execute(interaction, client) {
   const robInfo = robTypes[rob];
   const xp = result === "Win" ? robInfo.xp : 0;
 
-  // 🎨 Gradient Style Colors
-  const color =
-    result === "Win" ? "#00FF94" :
-    result === "Lose" ? "#FF2E2E" :
-    "#FFB300";
+  const baseColor =
+    result === "Win" ? "#1ED760" :
+    result === "Lose" ? "#FF4C4C" :
+    "#F0B429";
 
   const embed = new EmbedBuilder()
-    .setColor(color)
-    .setAuthor({
-      name: "💸🔫 GANG ROB CONTROL PANEL 🔫💸",
-      iconURL: interaction.guild.iconURL({ dynamic: true })
-    })
-    .setTitle("═══════「 ROB SUBMISSION 」═══════")
+    .setColor(baseColor)
+    .setTitle("ROB SUBMISSION")
     .setDescription(
-`💰🔫💵━━━━━━━━━━━━━━━━━━━━💵🔫💰
-🏦 **Rob Type:** \`${rob}\`
-📊 **Result:** ${
-  result === "Win" ? "🏆┃WIN" :
-  result === "Lose" ? "💀┃LOSE" :
-  "🚔┃NO PD"
-}
-⚡ **XP Reward:** \`${xp}\`
-💰🔫💵━━━━━━━━━━━━━━━━━━━━💵🔫💰`
+`━━━━━━━━━━━━━━━━━━
+
+**🏦 ROB TYPE**
+# ${rob}
+
+**📊 RESULT**
+# ${result}
+
+**⚡ XP REWARD**
+# ${xp}
+
+━━━━━━━━━━━━━━━━━━`
     )
-    .addFields(
-      {
-        name: "👥 Crew Members",
-        value: players.map((p, i) => `🔹 \`#${i + 1}\` ➜ <@${p.id}>`).join("\n"),
-        inline: false
-      },
-      {
-        name: "⏳ Operation Time",
-        value: `🕒 <t:${Math.floor(Date.now() / 1000)}:F>`,
-        inline: false
-      }
-    )
-    .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+    .addFields({
+      name: "👥 Participants",
+      value: players.map((p, i) => `\`${i + 1}.\` <@${p.id}>`).join("\n"),
+    })
     .setFooter({
-      text: "╔════════════════════════╗\n⚔️  Created By 『ALI YEKTA』  ⚔️\n💎  Premium Gang System V3  💎\n╚════════════════════════╝",
+      text: "Created By 『ALI YEKTA』 • Gang System",
       iconURL: client.user.displayAvatarURL()
     })
     .setTimestamp();
@@ -113,10 +100,45 @@ export async function execute(interaction, client) {
 
   const channel = interaction.guild.channels.cache.get(process.env.XP_ROB_CHANNEL);
 
-  await channel.send({ embeds: [embed], components: [row] });
+  const message = await channel.send({
+    embeds: [embed],
+    components: [row]
+  });
 
   await interaction.reply({
-    content: "💸 درخواست Rob با موفقیت ارسال شد و در انتظار تایید است 🔫",
+    content: "درخواست Rob ارسال شد و منتظر تایید است.",
     ephemeral: true
   });
+
+  // 🔥 Collector برای تغییر دکمه بعد از تایید
+  const collector = message.createMessageComponentCollector({ time: 86400000 });
+
+  collector.on("collect", async i => {
+
+    if (!i.customId.startsWith("approve_")) return;
+
+    // اینجا میتونی چک رول High Rank بزاری اگر خواستی
+    // مثال:
+    // if (!i.member.roles.cache.has("ROLE_ID")) return i.reply({ content: "دسترسی نداری", ephemeral: true });
+
+    const approvedEmbed = EmbedBuilder.from(embed)
+      .setColor("#2ECC71")
+      .setTitle("ROB APPROVED ✅");
+
+    const disabledButton = new ButtonBuilder()
+      .setCustomId("approved")
+      .setLabel("✔ تایید شد")
+      .setStyle(ButtonStyle.Success)
+      .setDisabled(true);
+
+    const newRow = new ActionRowBuilder().addComponents(disabledButton);
+
+    await i.update({
+      embeds: [approvedEmbed],
+      components: [newRow]
+    });
+
+    collector.stop();
+  });
+
 }
