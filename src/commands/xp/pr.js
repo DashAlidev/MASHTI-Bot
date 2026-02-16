@@ -9,10 +9,10 @@ import { robTypes } from "../../utils/robConfig.js";
 
 export const data = new SlashCommandBuilder()
   .setName("pr")
-  .setDescription("ثبت Rob برای تایید")
+  .setDescription("ثبت راب برای تایید")
   .addStringOption(option =>
     option.setName("rob")
-      .setDescription("نوع Rob را انتخاب کنید")
+      .setDescription("نوع راب را انتخاب کنید")
       .setRequired(true)
       .addChoices(
         { name: "Shop", value: "Shop" },
@@ -23,7 +23,7 @@ export const data = new SlashCommandBuilder()
   )
   .addStringOption(option =>
     option.setName("result")
-      .setDescription("نتیجه Rob")
+      .setDescription("نتیجه راب")
       .setRequired(true)
       .addChoices(
         { name: "Win", value: "Win" },
@@ -59,44 +59,64 @@ export async function execute(interaction, client) {
   const robInfo = robTypes[rob];
   const xp = result === "Win" ? robInfo.xp : 0;
 
+  // 📅 تاریخ شمسی بدون هیچ پکیجی
+  const nowShamsi = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date());
+
   const baseColor =
-    result === "Win" ? "#1ED760" :
-    result === "Lose" ? "#FF4C4C" :
-    "#F0B429";
+    result === "Win" ? "#22C55E" :
+    result === "Lose" ? "#EF4444" :
+    "#F59E0B";
 
   const embed = new EmbedBuilder()
     .setColor(baseColor)
-    .setTitle("ROB SUBMISSION")
+    .setTitle("ثبت جدید راب")
     .setDescription(
 `━━━━━━━━━━━━━━━━━━
 
-**🏦 ROB TYPE**
-# ${rob}
+**🏦 نوع راب**
+${rob}
 
-**📊 RESULT**
-# ${result}
+**📊 نتیجه**
+${result}
 
-**⚡ XP REWARD**
-# ${xp}
+**⚡ میزان XP**
+${xp}
 
 ━━━━━━━━━━━━━━━━━━`
     )
-    .addFields({
-      name: "👥 Participants",
-      value: players.map((p, i) => `\`${i + 1}.\` <@${p.id}>`).join("\n"),
-    })
+    .addFields(
+      {
+        name: "اعضای شرکت کننده",
+        value: players.map((p, i) => `\`${i + 1}.\` <@${p.id}>`).join("\n"),
+      },
+      {
+        name: "زمان ثبت",
+        value: `📅 ${nowShamsi}`
+      }
+    )
     .setFooter({
-      text: "Created By 『ALI YEKTA』 • Gang System",
+      text: "Created By 『ALI YEKTA』 • سیستم مدیریت گنگ",
       iconURL: client.user.displayAvatarURL()
     })
     .setTimestamp();
 
   const approveBtn = new ButtonBuilder()
     .setCustomId(`approve_${Date.now()}`)
-    .setLabel("Approve")
+    .setLabel("تایید")
     .setStyle(ButtonStyle.Success);
 
-  const row = new ActionRowBuilder().addComponents(approveBtn);
+  const rejectBtn = new ButtonBuilder()
+    .setCustomId(`reject_${Date.now()}`)
+    .setLabel("رد")
+    .setStyle(ButtonStyle.Danger);
+
+  const row = new ActionRowBuilder().addComponents(approveBtn, rejectBtn);
 
   const channel = interaction.guild.channels.cache.get(process.env.XP_ROB_CHANNEL);
 
@@ -106,35 +126,44 @@ export async function execute(interaction, client) {
   });
 
   await interaction.reply({
-    content: "درخواست Rob ارسال شد و منتظر تایید است.",
+    content: "درخواست راب ارسال شد و منتظر بررسی مدیریت است.",
     ephemeral: true
   });
 
-  // 🔥 Collector برای تغییر دکمه بعد از تایید
   const collector = message.createMessageComponentCollector({ time: 86400000 });
 
   collector.on("collect", async i => {
 
-    if (!i.customId.startsWith("approve_")) return;
+    if (!i.customId.startsWith("approve_") && !i.customId.startsWith("reject_")) return;
 
-    // اینجا میتونی چک رول High Rank بزاری اگر خواستی
-    // مثال:
-    // if (!i.member.roles.cache.has("ROLE_ID")) return i.reply({ content: "دسترسی نداری", ephemeral: true });
+    const isApprove = i.customId.startsWith("approve_");
 
-    const approvedEmbed = EmbedBuilder.from(embed)
-      .setColor("#2ECC71")
-      .setTitle("ROB APPROVED ✅");
+    const updatedEmbed = EmbedBuilder.from(embed)
+      .setColor(isApprove ? "#16A34A" : "#DC2626")
+      .setTitle(isApprove ? "راب تایید شد" : "راب رد شد")
+      .addFields({
+        name: "وضعیت نهایی",
+        value: isApprove
+          ? "✅ این راب توسط مدیریت تایید شد."
+          : "❌ این راب توسط مدیریت رد شد."
+      });
 
-    const disabledButton = new ButtonBuilder()
-      .setCustomId("approved")
-      .setLabel("✔ تایید شد")
+    const disabledApprove = new ButtonBuilder()
+      .setCustomId("approved_done")
+      .setLabel(isApprove ? "✔ تایید شد" : "تایید")
       .setStyle(ButtonStyle.Success)
       .setDisabled(true);
 
-    const newRow = new ActionRowBuilder().addComponents(disabledButton);
+    const disabledReject = new ButtonBuilder()
+      .setCustomId("rejected_done")
+      .setLabel(!isApprove ? "✖ رد شد" : "رد")
+      .setStyle(ButtonStyle.Danger)
+      .setDisabled(true);
+
+    const newRow = new ActionRowBuilder().addComponents(disabledApprove, disabledReject);
 
     await i.update({
-      embeds: [approvedEmbed],
+      embeds: [updatedEmbed],
       components: [newRow]
     });
 
