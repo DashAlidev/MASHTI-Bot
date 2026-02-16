@@ -70,7 +70,7 @@ export async function execute(interaction, client) {
         value: players.map(p => `• <@${p.id}>`).join("\n")
       }
     )
-    .setFooter({ text: "Created By Ali Yekta", iconURL: "LOGO_URL_HERE" })
+    .setFooter({ text: "Created By Ali Yekta" })
     .setTimestamp();
 
   const approveBtn = new ButtonBuilder()
