@@ -3,5 +3,6 @@ export const robTypes = {
   "Shop": { xp: 18, players: 2 },
   "Mini Bank": { xp: 35, players: 2 },
   "Jaw Shams": { xp: 50, players: 4 },
-  "Maze Bank": { xp: 90, players: 6 }
+  "Maze Bank": { xp: 90, players: 6 },
+  "Gun Shop": { xp: 34, players: 3 }
 };
