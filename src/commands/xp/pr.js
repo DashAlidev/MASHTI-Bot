@@ -10,6 +10,7 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
       .addChoices(
         { name: "Shop", value: "Shop" },
+        { name: "Gun Shop", value: "Gun Shop" },
         { name: "Mini Bank", value: "Mini Bank" },
         { name: "Jaw Shams", value: "Jaw Shams" },
         { name: "Maze Bank", value: "Maze Bank" }
