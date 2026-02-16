@@ -47,6 +47,7 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction, client) {
+
   const rob = interaction.options.getString("rob");
   const result = interaction.options.getString("result");
 
@@ -60,17 +61,47 @@ export async function execute(interaction, client) {
   const robInfo = robTypes[rob];
   const xp = result === "Win" ? robInfo.xp : 0;
 
+  // 🎨 Gradient Style Colors
+  const color =
+    result === "Win" ? "#00FF94" :
+    result === "Lose" ? "#FF2E2E" :
+    "#FFB300";
+
   const embed = new EmbedBuilder()
-    .setColor("#0A84FF")
-    .setTitle("📌 درخواست ثبت Rob")
-    .setDescription(`Rob: **${rob}**\nنتیجه: **${result}**\nXP: **${xp}**`)
+    .setColor(color)
+    .setAuthor({
+      name: "💸🔫 GANG ROB CONTROL PANEL 🔫💸",
+      iconURL: interaction.guild.iconURL({ dynamic: true })
+    })
+    .setTitle("═══════「 ROB SUBMISSION 」═══════")
+    .setDescription(
+`💰🔫💵━━━━━━━━━━━━━━━━━━━━💵🔫💰
+🏦 **Rob Type:** \`${rob}\`
+📊 **Result:** ${
+  result === "Win" ? "🏆┃WIN" :
+  result === "Lose" ? "💀┃LOSE" :
+  "🚔┃NO PD"
+}
+⚡ **XP Reward:** \`${xp}\`
+💰🔫💵━━━━━━━━━━━━━━━━━━━━💵🔫💰`
+    )
     .addFields(
       {
-        name: "👥 پلیرها",
-        value: players.map(p => `• <@${p.id}>`).join("\n")
+        name: "👥 Crew Members",
+        value: players.map((p, i) => `🔹 \`#${i + 1}\` ➜ <@${p.id}>`).join("\n"),
+        inline: false
+      },
+      {
+        name: "⏳ Operation Time",
+        value: `🕒 <t:${Math.floor(Date.now() / 1000)}:F>`,
+        inline: false
       }
     )
-    .setFooter({ text: "Created By Ali Yekta" })
+    .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+    .setFooter({
+      text: "╔════════════════════════╗\n⚔️  Created By 『ALI YEKTA』  ⚔️\n💎  Premium Gang System V3  💎\n╚════════════════════════╝",
+      iconURL: client.user.displayAvatarURL()
+    })
     .setTimestamp();
 
   const approveBtn = new ButtonBuilder()
@@ -81,9 +112,11 @@ export async function execute(interaction, client) {
   const row = new ActionRowBuilder().addComponents(approveBtn);
 
   const channel = interaction.guild.channels.cache.get(process.env.XP_ROB_CHANNEL);
-  console.log("XP ROB CHANNEL:", process.env.XP_ROB_CHANNEL);
-  console.log("CHANNEL OBJECT:", channel);
+
   await channel.send({ embeds: [embed], components: [row] });
 
-  await interaction.reply({ content: "درخواست Rob ارسال شد.", ephemeral: true });
+  await interaction.reply({
+    content: "💸 درخواست Rob با موفقیت ارسال شد و در انتظار تایید است 🔫",
+    ephemeral: true
+  });
 }
