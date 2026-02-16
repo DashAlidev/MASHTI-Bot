@@ -81,7 +81,8 @@ export async function execute(interaction, client) {
   const row = new ActionRowBuilder().addComponents(approveBtn);
 
   const channel = interaction.guild.channels.cache.get(process.env.XP_ROB_CHANNEL);
-
+  console.log("XP ROB CHANNEL:", process.env.XP_ROB_CHANNEL);
+  console.log("CHANNEL OBJECT:", channel);
   await channel.send({ embeds: [embed], components: [row] });
 
   await interaction.reply({ content: "درخواست Rob ارسال شد.", ephemeral: true });
