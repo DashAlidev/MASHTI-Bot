@@ -73,7 +73,7 @@ export async function execute(interaction) {
       { name: "💰 مبلغ", value: `${amount.toLocaleString()} تومان`, inline: true },
       { name: "📝 توضیحات", value: description }
     )
-    .setFooter({ text: "Created By Ali Yekta", iconURL: "LOGO_URL_HERE" })
+    .setFooter({ text: "Created By Ali Yekta" })
     .setTimestamp();
 
   const channel = interaction.guild.channels.cache.get(process.env.JARIMEH_CHANNEL);
