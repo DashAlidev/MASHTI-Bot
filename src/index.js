@@ -5,6 +5,20 @@ import { fileURLToPath } from "url";
 import "./database/db.js";
 import "./cron/weeklyReset.js";
 
+// -------------------- Koyeb Health Check Fix --------------------
+import http from "http";
+const PORT = process.env.PORT || 8000;
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("OK");
+});
+
+server.listen(PORT, () => {
+  console.log(`Health check server running on port ${PORT}`);
+});
+// ---------------------------------------------------------------
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
