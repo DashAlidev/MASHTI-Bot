@@ -70,7 +70,7 @@ export async function execute(interaction) {
     .addFields(
       { name: "👤 کاربر", value: `<@${targetUserId}>`, inline: true },
       { name: "📌 دلیل", value: reason, inline: true },
-      { name: "💰 مبلغ", value: `${amount.toLocaleString()} تومان`, inline: true },
+      { name: "💰 مبلغ", value: `$${amount.toLocaleString()}`, inline: true },
       { name: "📝 توضیحات", value: description }
     )
     .setFooter({ text: "Created By Ali Yekta" })
