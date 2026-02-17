@@ -38,10 +38,6 @@ const client = new Client({
 
 client.commands = new Collection();
 
-// ------------------- اضافه کردن سیستم تیکتینگ -------------------
-import './ticketSystem.js';
-// -----------------------------------------------------------------
-
 // Load Commands
 const commandsPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(commandsPath);
@@ -70,5 +66,4 @@ for (const file of eventFiles) {
   }
 }
 
-// ------------------- ورود بات -------------------
 client.login(process.env.BOT_TOKEN);
