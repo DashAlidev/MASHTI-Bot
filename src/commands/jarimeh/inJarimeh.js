@@ -20,12 +20,12 @@ export async function execute(interaction) {
         rows.length === 0
           ? "هیچ جریمه‌ای برای شما ثبت نشده."
           : rows
-              .map(r => `• **${r.reason}** — ${r.amount.toLocaleString()} تومان`)
+              .map(r => `• **${r.reason}** — ${r.amount.toLocaleString()} $`)
               .join("\n")
       )
       .addFields({
         name: "💰 مجموع جریمه‌ها",
-        value: `${total.toLocaleString()} تومان`
+        value: `${total.toLocaleString()} $`
       })
       .setFooter({ text: "Created By Ali Yekta" });
 
