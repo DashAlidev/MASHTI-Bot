@@ -4,14 +4,19 @@ import path from "path";
 import { fileURLToPath } from "url";
 import "./database/db.js";
 import "./cron/weeklyReset.js";
-
-// -------------------- Koyeb Health Check Fix --------------------
 import http from "http";
+
+// -------------------- Health Check for Koyeb --------------------
 const PORT = process.env.PORT || 8000;
 
 const server = http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("OK");
+  if (req.url === "/health") {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("Bot is alive ✅");
+  } else {
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not Found");
+  }
 });
 
 server.listen(PORT, () => {
